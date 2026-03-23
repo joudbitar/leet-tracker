@@ -4,8 +4,6 @@ A free progress tracker for CS students grinding through the NeetCode 150. Sign 
 
 **→ https://leet-tracker-pied.vercel.app**
 
-No setup needed. Just open it, sign in, and start tracking.
-
 ---
 
 ## the curriculum
@@ -30,7 +28,7 @@ Timed to have you interview-ready by October, which is when FAANG applications g
 
 ## for students
 
-Anyone can use this. Just go to the link, sign in with your Google account, and your progress is yours — separate from everyone else's. Multiple people can use it at the same time.
+Anyone can use this. Just go to the link, sign in with your Google account, and your progress is yours.
 
 The curriculum follows the [NeetCode 150](https://neetcode.io) problem set. Each problem links directly to NeetCode so you can solve it right there.
 
