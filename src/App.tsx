@@ -102,7 +102,7 @@ export default function App() {
         <div className="header-top">
           <div className="header-brand">
             <h1 className="app-title">LeetTracker</h1>
-            <span className="app-subtitle">FAANG Prep · 31 weeks</span>
+            <span className="app-subtitle">NeetCode 150 · 31 weeks · free for everyone</span>
           </div>
           <div className="header-stats">
             <div className="countdown-box">
