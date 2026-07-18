@@ -68,6 +68,7 @@ export interface Plan {
   pool: Problem[]
   remaining: Problem[]
   reviews: Problem[]
+  doneThisWeek: Problem[]
   solvedInPool: number
   solvedThisWeek: number
   thisWeekQuota: number
@@ -90,10 +91,11 @@ export function buildPlan(entries: Entries, targetDate: string | null, coreOnly:
   const solvedInPool = pool.length - remaining.length
 
   const weekStart = startOfWeek(now).getTime()
-  const solvedThisWeek = pool.filter(p => {
+  const doneThisWeek = pool.filter(p => {
     const e = entries[p.id]
     return isSolved(e) && e.solvedAt != null && new Date(e.solvedAt).getTime() >= weekStart
-  }).length
+  })
+  const solvedThisWeek = doneThisWeek.length
 
   let daysLeft: number | null = null
   let perWeek: number | null = null
@@ -138,7 +140,7 @@ export function buildPlan(entries: Entries, targetDate: string | null, coreOnly:
     !coreOnly && perWeek != null && perWeek > HEAVY_PER_WEEK && coreRemaining < remaining.length
 
   return {
-    pool, remaining, reviews, solvedInPool, solvedThisWeek,
+    pool, remaining, reviews, doneThisWeek, solvedInPool, solvedThisWeek,
     thisWeekQuota, nextUp, daysLeft, perWeek, perDay, status, suggestCore,
   }
 }

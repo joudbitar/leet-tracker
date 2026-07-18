@@ -95,7 +95,8 @@ a { color: var(--black); text-decoration: none; cursor: pointer; }
 .row { padding: 3px 0; }
 .rowline { display: flex; align-items: baseline; gap: 5px; }
 .rank { color: var(--gray); min-width: 24px; text-align: right; }
-.arrow { color: var(--lightgray); font-size: 8pt; }
+.arrow { color: var(--lightgray); font-size: 8pt; cursor: pointer; }
+a.arrow:hover { color: var(--orange); }
 .arrow-clean { color: var(--clean); }
 .arrow-hints { color: var(--hints); }
 .arrow-solution { color: var(--solution); }
