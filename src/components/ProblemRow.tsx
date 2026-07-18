@@ -57,7 +57,11 @@ export function ProblemRow({ problem, index, entry = EMPTY_ENTRY, onConfidence, 
     <div className="row">
       <div className="rowline">
         <span className="rank">{index}.</span>
-        <span className={`arrow ${solved ? `arrow-${entry.confidence}` : ''}`}>▲</span>
+        <a
+          className={`arrow ${solved ? `arrow-${entry.confidence}` : ''}`}
+          title={solved ? 'unsolve' : 'mark solved clean — no help, no peeking'}
+          onClick={() => (solved ? setConfirmUnsolve(true) : onConfidence(problem.id, 'clean', true))}
+        >▲</a>
         <a
           className={`title ${solved ? 'title-solved' : ''}`}
           href={problem.url}
@@ -87,8 +91,12 @@ export function ProblemRow({ problem, index, entry = EMPTY_ENTRY, onConfidence, 
               <span> | {due ? `solved with ${entry.confidence} ` : ''}{daysAgo(entry.solvedAt)}</span>
             )}
           </>
+        ) : entry.guessedPattern && entry.guessedPattern !== 'skipped' ? (
+          <span>guessed: {entry.guessedPattern.toLowerCase()} — revealed when rated</span>
+        ) : entry.guessedPattern === 'skipped' ? (
+          <span>pattern hidden till rated</span>
         ) : (
-          <span>pattern: ?</span>
+          <a className="act" onClick={() => setGuessOpen(o => !o)}>guess the pattern</a>
         )}
         {' | '}
         {confirmUnsolve ? (

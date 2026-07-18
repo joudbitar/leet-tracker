@@ -98,15 +98,23 @@ export function PlanView({ plan, entries, profile, onProfile, onConfidence, onNo
           ? `this week (${Math.min(plan.solvedThisWeek, plan.thisWeekQuota)} of ${plan.thisWeekQuota} done)`
           : `next up · ${plan.solvedThisWeek} solved this week`}
       </div>
-      {plan.nextUp.length === 0 ? (
-        <div className="subtext sectionnote">
-          {plan.status === 'done' ? 'nothing left. seriously.' : 'week’s quota done. rest, or pull ahead from the problems tab.'}
-        </div>
-      ) : (
-        plan.nextUp.map(p => (
-          <ProblemRow key={p.id} problem={p} index={indexOf(p.id)} entry={entries[p.id]} {...rowProps} />
-        ))
-      )}
+      {(() => {
+        // solved problems stay in the week view — shown upvoted, not vanished
+        const weekList = [...plan.doneThisWeek, ...plan.nextUp].sort((a, b) => indexOf(a.id) - indexOf(b.id))
+        if (weekList.length === 0) {
+          return <div className="subtext sectionnote">{plan.status === 'done' ? 'nothing left. seriously.' : 'nothing due. rest, or pull ahead from the problems tab.'}</div>
+        }
+        return (
+          <>
+            {weekList.map(p => (
+              <ProblemRow key={p.id} problem={p} index={indexOf(p.id)} entry={entries[p.id]} {...rowProps} />
+            ))}
+            {plan.nextUp.length === 0 && plan.status !== 'done' && (
+              <div className="subtext sectionnote">week’s quota done. rest, or pull ahead from the problems tab.</div>
+            )}
+          </>
+        )
+      })()}
     </div>
   )
 }
