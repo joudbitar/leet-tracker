@@ -1,189 +1,119 @@
-import { useMemo, useState } from 'react'
-import { CURRICULUM, TOTAL_PROBLEMS, PHASE_COUNTS } from './data/curriculum'
-import { useProgress } from './hooks/useProgress'
+import { useEffect, useMemo, useState } from 'react'
+import { PROBLEMS, TOTAL } from './data/problems'
+import { buildPlan, isSolved } from './lib/plan'
+import { supabase } from './lib/supabase'
 import { useAuth } from './hooks/useAuth'
-import { ProgressBar } from './components/ProgressBar'
-import { WeekSection } from './components/WeekSection'
-import { TopicSidebar } from './components/TopicSidebar'
+import { useProgress } from './hooks/useProgress'
+import { useProfile } from './hooks/useProfile'
+import { PlanView } from './components/PlanView'
+import { ProblemsView } from './components/ProblemsView'
+import { PatternsView } from './components/PatternsView'
+import { NotesView } from './components/NotesView'
+import { BoardView } from './components/BoardView'
 import { AuthModal } from './components/AuthModal'
 
-const FAANG_TARGET = new Date('2026-07-15T00:00:00')
+type View = 'plan' | 'problems' | 'patterns' | 'notes' | 'board'
 
-function getDaysUntil(target: Date): number {
-  const now = new Date()
-  now.setHours(0, 0, 0, 0)
-  const diff = target.getTime() - now.getTime()
-  return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)))
-}
+const VIEWS: { key: View; label: string }[] = [
+  { key: 'plan', label: 'plan' },
+  { key: 'problems', label: 'problems' },
+  { key: 'patterns', label: 'patterns' },
+  { key: 'notes', label: 'notes' },
+  { key: 'board', label: 'board' },
+]
 
-function getCurrentWeekId(): string | null {
-  const now = new Date()
-  now.setHours(0, 0, 0, 0)
-  for (let i = CURRICULUM.length - 1; i >= 0; i--) {
-    const w = CURRICULUM[i]
-    const start = new Date(w.startDate)
-    start.setHours(0, 0, 0, 0)
-    if (now >= start) {
-      const end = new Date(start)
-      end.setDate(end.getDate() + 7)
-      if (now < end) return w.id
-      return w.id
-    }
-  }
-  return CURRICULUM[0].id
-}
-
-function computeStreak(curriculum: typeof CURRICULUM, checked: Set<string>): number {
-  const now = new Date()
-  now.setHours(0, 0, 0, 0)
-  let currentIdx = 0
-  for (let i = CURRICULUM.length - 1; i >= 0; i--) {
-    const start = new Date(CURRICULUM[i].startDate)
-    start.setHours(0, 0, 0, 0)
-    if (now >= start) {
-      currentIdx = i
-      break
-    }
-  }
-
-  let streak = 0
-  for (let i = currentIdx; i >= 0; i--) {
-    const week = curriculum[i]
-    const allDone = week.problems.every(p => checked.has(p.id))
-    if (allDone) {
-      streak++
-    } else {
-      if (i === currentIdx) continue
-      break
-    }
-  }
-  return streak
+function viewFromHash(): View {
+  const h = window.location.hash.replace('#/', '').replace('#', '')
+  return (VIEWS.some(v => v.key === h) ? h : 'plan') as View
 }
 
 export default function App() {
   const { session, user, initializing, signInWithGoogle, signOut } = useAuth()
-  const { checked, notes, collapsed, loading, toggleProblem, setNote, toggleCollapsed } = useProgress(session)
-  const [authModalOpen, setAuthModalOpen] = useState(false)
+  const { entries, loading, syncError, setConfidence, setNote, setComplexity, recordGuess } = useProgress(session)
+  const { profile, update } = useProfile(session)
+  const [view, setView] = useState<View>(viewFromHash)
+  const [authOpen, setAuthOpen] = useState(false)
 
-  const currentWeekId = useMemo(() => getCurrentWeekId(), [])
-  const daysUntilFaang = getDaysUntil(FAANG_TARGET)
-  const streak = useMemo(() => computeStreak(CURRICULUM, checked), [checked])
+  useEffect(() => {
+    const onHash = () => setView(viewFromHash())
+    window.addEventListener('hashchange', onHash)
+    return () => window.removeEventListener('hashchange', onHash)
+  }, [])
 
-  const totalDone = checked.size
-  const phase1Done = CURRICULUM.filter(w => w.phase === 1).flatMap(w => w.problems).filter(p => checked.has(p.id)).length
-  const phase2Done = CURRICULUM.filter(w => w.phase === 2).flatMap(w => w.problems).filter(p => checked.has(p.id)).length
-  const phase3Done = CURRICULUM.filter(w => w.phase === 3).flatMap(w => w.problems).filter(p => checked.has(p.id)).length
+  const plan = useMemo(
+    () => buildPlan(entries, profile.targetDate, profile.coreOnly),
+    [entries, profile.targetDate, profile.coreOnly]
+  )
+  const solvedTotal = useMemo(() => PROBLEMS.filter(p => isSolved(entries[p.id])).length, [entries])
 
-  const isCollapsed = (weekId: string) => {
-    const hasData = localStorage.getItem('leet-tracker-collapsed') !== null
-    if (!hasData) return weekId !== currentWeekId
-    return collapsed.has(weekId)
-  }
-
-  const phases = [1, 2, 3] as const
-  const phaseLabels = { 1: 'Phase 1 — Foundation', 2: 'Phase 2 — Core Patterns', 3: 'Phase 3 — FAANG Level' }
-  const phaseDone = { 1: phase1Done, 2: phase2Done, 3: phase3Done }
-  const phaseColors = { 1: '#72A449', 2: '#4a7ab5', 3: '#9b59b6' }
-
-  const handleAttemptCheck = session ? undefined : () => setAuthModalOpen(true)
-
-  if (initializing || loading) {
-    return (
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', background: '#0f0f0f' }}>
-        <div className="spinner" />
-      </div>
-    )
+  const rowProps = {
+    onConfidence: setConfidence,
+    onNote: setNote,
+    onComplexity: setComplexity,
+    onGuess: recordGuess,
   }
 
   return (
-    <div className="app">
-      {/* Header */}
-      <header className="app-header">
-        <div className="header-top">
-          <div className="header-brand">
-            <h1 className="app-title">LeetTracker</h1>
-            <span className="app-subtitle">NeetCode 150 · 31 weeks · free for everyone</span>
-          </div>
-          <div className="header-stats">
-            <div className="countdown-box">
-              <span className="countdown-num">{daysUntilFaang}</span>
-              <span className="countdown-label">days until FAANG apps open</span>
-            </div>
-            <div className="streak-box">
-              <span className="streak-num">{streak}</span>
-              <span className="streak-label">week streak 🔥</span>
-            </div>
-            <div className="user-box">
-              {user ? (
-                <>
-                  <span className="user-email">{user.email}</span>
-                  <button className="signout-btn" onClick={() => signOut()}>Sign out</button>
-                </>
-              ) : (
-                <button className="signout-btn" onClick={() => setAuthModalOpen(true)}>Sign in</button>
-              )}
-            </div>
-          </div>
-        </div>
-
-        <div className="overall-progress">
-          <ProgressBar
-            label="Overall Progress"
-            done={totalDone}
-            total={TOTAL_PROBLEMS}
-            color="#72A449"
-          />
-        </div>
-
-        <div className="phase-progress-grid">
-          {phases.map(phase => (
-            <ProgressBar
-              key={phase}
-              label={phaseLabels[phase]}
-              done={phaseDone[phase]}
-              total={PHASE_COUNTS[phase]}
-              color={phaseColors[phase]}
-            />
+    <div className="page">
+      <div className="topbar">
+        <a className="brand" href="#/">
+          <span className="logo">λ</span> <b>leet-tracker</b>
+        </a>
+        <span className="topnav">
+          {VIEWS.map((v, i) => (
+            <span key={v.key}>
+              {i > 0 && ' | '}
+              <a className={view === v.key ? 'nav nav-on' : 'nav'} href={`#/${v.key}`}>{v.label}</a>
+            </span>
           ))}
-        </div>
-      </header>
-
-      {/* Main content */}
-      <div className="app-body">
-        <main className="curriculum-main">
-          {phases.map(phase => (
-            <section key={phase} className="phase-section">
-              <h2 className="phase-title" style={{ color: phaseColors[phase] }}>
-                {phaseLabels[phase]}
-              </h2>
-              {CURRICULUM.filter(w => w.phase === phase).map(week => (
-                <WeekSection
-                  key={week.id}
-                  week={week}
-                  checked={checked}
-                  notes={notes}
-                  isCurrentWeek={week.id === currentWeekId}
-                  isCollapsed={isCollapsed(week.id)}
-                  onToggleProblem={toggleProblem}
-                  onNoteChange={setNote}
-                  onToggleCollapsed={toggleCollapsed}
-                  onAttemptCheck={handleAttemptCheck}
-                />
-              ))}
-            </section>
-          ))}
-        </main>
-
-        <aside className="sidebar">
-          <TopicSidebar checked={checked} />
-        </aside>
+        </span>
+        <span className="topright">
+          {solvedTotal}/{TOTAL}
+          {' · '}
+          {supabase ? (
+            user ? (
+              <>
+                {profile.displayName || user.email}{' '}
+                <a className="nav" onClick={() => signOut()}>logout</a>
+              </>
+            ) : (
+              <a className="nav" onClick={() => setAuthOpen(true)}>login</a>
+            )
+          ) : (
+            'local'
+          )}
+        </span>
       </div>
 
-      <AuthModal
-        isOpen={authModalOpen}
-        onClose={() => setAuthModalOpen(false)}
-        onSignIn={() => { signInWithGoogle(); setAuthModalOpen(false) }}
-      />
+      <div className="content">
+        {initializing || loading ? (
+          <div className="subtext sectionnote">loading…</div>
+        ) : (
+          <>
+            {syncError && <div className="warn">sync is failing — progress is safe locally, but check the console.</div>}
+            {!session && supabase && view !== 'board' && (
+              <div className="subtext sectionnote">
+                progress saves to this browser. <a className="act" onClick={() => setAuthOpen(true)}>sign in</a> to sync + compete.
+              </div>
+            )}
+            {view === 'plan' && (
+              <PlanView plan={plan} entries={entries} profile={profile} onProfile={update} {...rowProps} />
+            )}
+            {view === 'problems' && <ProblemsView entries={entries} {...rowProps} />}
+            {view === 'patterns' && <PatternsView entries={entries} />}
+            {view === 'notes' && <NotesView entries={entries} />}
+            {view === 'board' && (
+              <BoardView session={session} profile={profile} onProfile={update} onSignIn={() => setAuthOpen(true)} />
+            )}
+          </>
+        )}
+      </div>
+
+      <div className="footer subtext">
+        neetcode 150 · pick a date, it does the math · <a href="https://github.com/joudbitar/leet-tracker" target="_blank" rel="noopener noreferrer">source</a>
+      </div>
+
+      <AuthModal isOpen={authOpen} onClose={() => setAuthOpen(false)} onSignIn={() => { signInWithGoogle(); setAuthOpen(false) }} />
     </div>
   )
 }

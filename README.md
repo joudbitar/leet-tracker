@@ -1,42 +1,27 @@
 # leet-tracker
 
-A free progress tracker for CS students grinding through the NeetCode 150. Sign in with Google, check off problems as you solve them, leave notes, and watch your progress stack up week by week.
+Tell it when your interview is. It does the math.
+
+A NeetCode-150 tracker that turns your target date into a living plan — fall behind and this week's load grows, never a stale schedule. Rate every solve honestly (clean / hints / solution), and the shaky ones come back for review right when you'd forget them.
 
 **→ https://leet-tracker-pied.vercel.app**
 
 ---
 
-## the curriculum
+## how it works
 
-31 weeks, 3 problems a week, structured so you build up from the basics before hitting the hard stuff:
+- **pick a date** — pace = problems left ÷ time left, recomputed every visit. Any date is legal. 150 in a week means 22 a day; the app shows the math and gets out of the way.
+- **rate the solve** — *clean* / *needed hints* / *read the solution*. One tap. Honesty is free: every level counts the same on the leaderboard.
+- **auto review** — solution-reads come back in ~1 week, hint-solves in ~2. Reviews land inside your weekly plan, not a tab you'll never open.
+- **guess the pattern** — before a problem opens, commit to a guess (or skip, one tap). Recognizing the pattern cold *is* the interview skill; the patterns tab tracks your hit rate.
+- **mastery grid** — pattern × confidence heatmap. Readiness at a glance, not just a percent-complete bar.
+- **cheatsheet** — quick notes + time/space complexity per problem, rolled up per pattern. Your own revision doc, written as you go.
+- **weekly board** — solved-this-week, resets Monday. Newcomers can top it in week one.
+- **tight on time?** — one tap trims the plan to the Blind-75 core. Suggested, never forced.
 
-- **Phase 1** (7 weeks) — Arrays, Hashmaps, Two Pointers, Sliding Window, Stacks
-- **Phase 2** (14 weeks) — Binary Search, Trees, Linked Lists, Heaps, Backtracking  
-- **Phase 3** (10 weeks) — Graphs, Dynamic Programming, Tries
+Progress works straight from the browser with no account; sign in with Google to sync across devices and join the board.
 
-Timed to have you interview-ready by October, which is when FAANG applications go live.
-
-## features
-
-- sign in with Google — your progress saves and syncs across devices
-- check off problems as you do them
-- leave a quick note per problem (approach, gotcha, etc.)
-- current week auto-highlighted so you always know where you are
-- per-phase progress bars + topic breakdown sidebar
-- streak counter
-- countdown to when FAANG apps open
-
-## for students
-
-Anyone can use this. Just go to the link, sign in with your Google account, and your progress is yours.
-
-The curriculum follows the [NeetCode 150](https://neetcode.io) problem set. Each problem links directly to NeetCode so you can solve it right there.
-
----
-
-## self-hosting / contributing
-
-If you want to run your own version or tweak the curriculum:
+## self-hosting
 
 ```bash
 git clone https://github.com/joudbitar/leet-tracker.git
@@ -50,10 +35,8 @@ VITE_SUPABASE_URL=your-supabase-url
 VITE_SUPABASE_ANON_KEY=your-anon-key
 ```
 
-```bash
-npm run dev
-```
+Run `supabase/schema.sql` in the Supabase SQL editor (upgrading from v1? use `supabase/migrations/002_v2.sql` instead — it migrates old data in place). Enable Google OAuth under Authentication → Providers. Then `npm run dev`.
 
-Supabase schema is in `supabase/schema.sql`. Enable Google OAuth in your Supabase dashboard under Authentication → Providers.
+Without `.env.local` the app still runs fully in local-only mode.
 
-PRs welcome if you want to add problems, fix bugs, or change the schedule.
+PRs welcome.

@@ -5,9 +5,11 @@ import { supabase } from '../lib/supabase'
 export function useAuth() {
   const [session, setSession] = useState<Session | null>(null)
   const [user, setUser] = useState<User | null>(null)
-  const [initializing, setInitializing] = useState(true)
+  const [initializing, setInitializing] = useState(!!supabase)
 
   useEffect(() => {
+    if (!supabase) return
+
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session)
       setUser(session?.user ?? null)
@@ -23,12 +25,12 @@ export function useAuth() {
   }, [])
 
   const signInWithGoogle = () =>
-    supabase.auth.signInWithOAuth({
+    supabase?.auth.signInWithOAuth({
       provider: 'google',
       options: { redirectTo: window.location.origin },
     })
 
-  const signOut = () => supabase.auth.signOut()
+  const signOut = () => supabase?.auth.signOut()
 
   return { session, user, initializing, signInWithGoogle, signOut }
 }
