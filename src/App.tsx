@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useState } from 'react'
 import { PROBLEMS, TOTAL } from './data/problems'
 import { buildPlan, isSolved } from './lib/plan'
-import { supabase } from './lib/supabase'
+import { hasFirebase } from './lib/firebase'
 import { useAuth } from './hooks/useAuth'
 import { useProgress } from './hooks/useProgress'
 import { useProfile } from './hooks/useProfile'
+import { useBoardPush } from './hooks/useBoard'
 import { PlanView } from './components/PlanView'
 import { ProblemsView } from './components/ProblemsView'
 import { PatternsView } from './components/PatternsView'
@@ -28,11 +29,13 @@ function viewFromHash(): View {
 }
 
 export default function App() {
-  const { session, user, initializing, signInWithGoogle, signOut } = useAuth()
-  const { entries, loading, syncError, setConfidence, setNote, setComplexity, recordGuess } = useProgress(session)
-  const { profile, update } = useProfile(session)
+  const { user, initializing, signInWithGoogle, signOut } = useAuth()
+  const { entries, loading, syncError, setConfidence, setNote, setComplexity, recordGuess } = useProgress(user)
+  const { profile, update } = useProfile(user)
   const [view, setView] = useState<View>(viewFromHash)
   const [authOpen, setAuthOpen] = useState(false)
+
+  useBoardPush(user, entries, profile)
 
   useEffect(() => {
     const onHash = () => setView(viewFromHash())
@@ -70,7 +73,7 @@ export default function App() {
         <span className="topright">
           {solvedTotal}/{TOTAL}
           {' · '}
-          {supabase ? (
+          {hasFirebase ? (
             user ? (
               <>
                 {profile.displayName || user.email}{' '}
@@ -91,7 +94,7 @@ export default function App() {
         ) : (
           <>
             {syncError && <div className="warn">sync is failing — progress is safe locally, but check the console.</div>}
-            {!session && supabase && view !== 'board' && (
+            {!user && hasFirebase && view !== 'board' && (
               <div className="subtext sectionnote">
                 progress saves to this browser. <a className="act" onClick={() => setAuthOpen(true)}>sign in</a> to sync + compete.
               </div>
@@ -103,7 +106,7 @@ export default function App() {
             {view === 'patterns' && <PatternsView entries={entries} />}
             {view === 'notes' && <NotesView entries={entries} />}
             {view === 'board' && (
-              <BoardView session={session} profile={profile} onProfile={update} onSignIn={() => setAuthOpen(true)} />
+              <BoardView user={user} profile={profile} onProfile={update} onSignIn={() => setAuthOpen(true)} />
             )}
           </>
         )}
