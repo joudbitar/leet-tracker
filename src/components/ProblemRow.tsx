@@ -4,11 +4,17 @@ import { daysAgo, isReviewDue, EMPTY_ENTRY, type Entry } from '../lib/plan'
 
 const COMPLEXITIES = ['O(1)', 'O(log n)', 'O(n)', 'O(n log n)', 'O(n²)', 'O(2ⁿ)', 'O(n!)']
 
+const CONFIDENCE_HINTS: Record<Confidence, string> = {
+  clean: 'solved it myself — no help, no peeking',
+  hints: 'got there, but needed a hint or a nudge',
+  solution: 'had to read the solution — comes back for review in ~1 week',
+}
+
 interface Props {
   problem: Problem
   index: number
   entry?: Entry
-  onConfidence: (id: string, c: Confidence | null) => void
+  onConfidence: (id: string, c: Confidence | null, resetClock?: boolean) => void
   onNote: (id: string, note: string) => void
   onComplexity: (id: string, time: string | null, space: string | null) => void
   onGuess: (id: string, pattern: string) => void
@@ -17,6 +23,7 @@ interface Props {
 export function ProblemRow({ problem, index, entry = EMPTY_ENTRY, onConfidence, onNote, onComplexity, onGuess }: Props) {
   const [guessOpen, setGuessOpen] = useState(false)
   const [noteOpen, setNoteOpen] = useState(false)
+  const [confirmUnsolve, setConfirmUnsolve] = useState(false)
 
   const solved = entry.confidence != null
   const due = isReviewDue(entry, new Date())
@@ -37,8 +44,13 @@ export function ProblemRow({ problem, index, entry = EMPTY_ENTRY, onConfidence, 
   }
 
   function toggleConfidence(c: Confidence) {
-    // clicking the active level un-solves; on a due review any click re-rates and resets the clock
-    onConfidence(problem.id, entry.confidence === c && !due ? null : c)
+    if (entry.confidence === c && !due) {
+      // clicking the active level = un-solve; that's data loss, so confirm inline
+      setConfirmUnsolve(true)
+      return
+    }
+    // fresh solves and due-review re-rates stamp now; corrections keep the old date
+    onConfidence(problem.id, c, !solved || due)
   }
 
   return (
@@ -79,15 +91,27 @@ export function ProblemRow({ problem, index, entry = EMPTY_ENTRY, onConfidence, 
           <span>pattern: ?</span>
         )}
         {' | '}
-        {(['clean', 'hints', 'solution'] as Confidence[]).map(c => (
-          <a
-            key={c}
-            className={`act ${entry.confidence === c && !due ? 'act-on' : ''}`}
-            onClick={() => toggleConfidence(c)}
-          >
-            {due ? `re-solved ${c}` : c}
-          </a>
-        ))}
+        {confirmUnsolve ? (
+          <>
+            <span className="confirm">unsolve — wipe the rating? </span>
+            <a className="act confirm" onClick={() => { onConfidence(problem.id, null); setConfirmUnsolve(false) }}>yes</a>
+            <a className="act" onClick={() => setConfirmUnsolve(false)}>no</a>
+          </>
+        ) : (
+          <>
+            <span className="actlabel">{due ? 're-solved it?' : solved ? 'rated:' : 'solved it?'} </span>
+            {(['clean', 'hints', 'solution'] as Confidence[]).map(c => (
+              <a
+                key={c}
+                title={CONFIDENCE_HINTS[c]}
+                className={`act ${entry.confidence === c && !due ? 'act-on' : ''}`}
+                onClick={() => toggleConfidence(c)}
+              >
+                {c}
+              </a>
+            ))}
+          </>
+        )}
         <a className={`act ${entry.note ? 'act-on' : ''}`} onClick={() => setNoteOpen(o => !o)}>
           note{entry.note ? '*' : ''}
         </a>

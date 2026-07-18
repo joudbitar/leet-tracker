@@ -113,6 +113,11 @@ a { color: var(--black); text-decoration: none; cursor: pointer; }
 .subtext a, .act { color: var(--gray); font-size: 8pt; }
 .subtext a:hover, .act:hover { text-decoration: underline; }
 .act-on { color: var(--black); font-weight: bold; }
+.actlabel { font-size: 8pt; color: var(--lightgray); }
+.confirm { color: var(--hard); font-size: 8pt; }
+a.confirm { font-weight: bold; }
+.legend { padding: 0 0 8px; }
+.legend b { color: #666; }
 .act + .act, .act + a, a + .act { margin-left: 6px; }
 .guess-right { color: var(--easy); }
 .guess-wrong { color: var(--hard); }
