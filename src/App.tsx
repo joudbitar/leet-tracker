@@ -93,7 +93,7 @@ export default function App() {
           <div className="subtext sectionnote">loading…</div>
         ) : (
           <>
-            {syncError && <div className="warn">sync is failing — progress is safe locally, but check the console.</div>}
+            {syncError && <div className="warn">sync failing. progress is safe in this browser.</div>}
             {!user && hasFirebase && view !== 'board' && (
               <div className="subtext sectionnote">
                 progress saves to this browser. <a className="act" onClick={() => setAuthOpen(true)}>sign in</a> to sync + compete.

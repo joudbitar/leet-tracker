@@ -5,9 +5,9 @@ import { daysAgo, isReviewDue, EMPTY_ENTRY, type Entry } from '../lib/plan'
 const COMPLEXITIES = ['O(1)', 'O(log n)', 'O(n)', 'O(n log n)', 'O(n²)', 'O(2ⁿ)', 'O(n!)']
 
 const CONFIDENCE_HINTS: Record<Confidence, string> = {
-  clean: 'solved it myself — no help, no peeking',
-  hints: 'got there, but needed a hint or a nudge',
-  solution: 'had to read the solution — comes back for review in ~1 week',
+  clean: 'solved without help',
+  hints: 'needed a hint or two',
+  solution: 'read the solution. comes back for review in a week',
 }
 
 interface Props {
@@ -59,7 +59,7 @@ export function ProblemRow({ problem, index, entry = EMPTY_ENTRY, onConfidence, 
         <span className="rank">{index}.</span>
         <a
           className={`arrow ${solved ? `arrow-${entry.confidence}` : ''}`}
-          title={solved ? 'unsolve' : 'mark solved clean — no help, no peeking'}
+          title={solved ? 'unsolve' : 'mark solved clean'}
           onClick={() => (solved ? setConfirmUnsolve(true) : onConfidence(problem.id, 'clean', true))}
         >▲</a>
         <a
@@ -92,7 +92,7 @@ export function ProblemRow({ problem, index, entry = EMPTY_ENTRY, onConfidence, 
             )}
           </>
         ) : entry.guessedPattern && entry.guessedPattern !== 'skipped' ? (
-          <span>guessed: {entry.guessedPattern.toLowerCase()} — revealed when rated</span>
+          <span>guessed: {entry.guessedPattern.toLowerCase()}</span>
         ) : entry.guessedPattern === 'skipped' ? (
           <span>pattern hidden till rated</span>
         ) : (
@@ -101,7 +101,7 @@ export function ProblemRow({ problem, index, entry = EMPTY_ENTRY, onConfidence, 
         {' | '}
         {confirmUnsolve ? (
           <>
-            <span className="confirm">unsolve — wipe the rating? </span>
+            <span className="confirm">unsolve? </span>
             <a className="act confirm" onClick={() => { onConfidence(problem.id, null); setConfirmUnsolve(false) }}>yes</a>
             <a className="act" onClick={() => setConfirmUnsolve(false)}>no</a>
           </>
@@ -139,7 +139,7 @@ export function ProblemRow({ problem, index, entry = EMPTY_ENTRY, onConfidence, 
         <div className="notebox">
           <textarea
             className="noteinput"
-            placeholder="approach, the gotcha, what you'd tell yourself next time…"
+            placeholder="approach, gotchas, complexity"
             value={entry.note}
             onChange={e => onNote(problem.id, e.target.value)}
             rows={2}

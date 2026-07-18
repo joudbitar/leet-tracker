@@ -17,11 +17,11 @@ interface Props {
 
 const STATUS_COPY: Record<Plan['status'], string> = {
   'no-date': '',
-  'done': 'done. all of it. go get the offer.',
-  'past-date': 'target date passed — set a new one',
+  'done': 'done',
+  'past-date': 'target date passed',
   'on-track': 'on track',
-  'behind': 'behind — this week grew',
-  'insane': 'godspeed.',
+  'behind': 'behind, this week grew',
+  'insane': 'godspeed',
 }
 
 export function PlanView({ plan, entries, profile, onProfile, onConfidence, onNote, onComplexity, onGuess }: Props) {
@@ -58,7 +58,7 @@ export function PlanView({ plan, entries, profile, onProfile, onConfidence, onNo
       <a className="act" onClick={() => { if (dateDraft) { onProfile({ targetDate: dateDraft }); setEditingDate(false) } }}>set</a>
       {profile.targetDate
         ? <>{' '}<a className="act" onClick={() => setEditingDate(false)}>cancel</a></>
-        : <span className="subtext"> — or just grind, no date. the plan adapts either way.</span>}
+        : <span className="subtext"> or just grind with no date</span>}
     </div>
   )
 
@@ -68,11 +68,6 @@ export function PlanView({ plan, entries, profile, onProfile, onConfidence, onNo
       <div>
         {dateBanner}
         <div className="sectionhead">start here</div>
-        <div className="subtext sectionnote">
-          1. pick your interview date above — the plan does the math, re-plans every week, and never goes stale.<br />
-          2. solve your first three. click a title to guess its pattern first (that's the interview skill), or hit ▲ when you solved it clean.<br />
-          3. rate every solve honestly — <b>clean</b>: no help · <b>hints</b>: needed a nudge · <b>solution</b>: read the answer. shaky ones come back for review.
-        </div>
         {PROBLEMS.slice(0, 3).map(p => (
           <ProblemRow key={p.id} problem={p} index={indexOf(p.id)} entry={entries[p.id]} {...rowProps} />
         ))}
@@ -113,11 +108,6 @@ export function PlanView({ plan, entries, profile, onProfile, onConfidence, onNo
         </div>
       )}
 
-      <div className="subtext legend">
-        rate each solve — <b>clean</b>: no help · <b>hints</b>: needed a nudge · <b>solution</b>: read the answer.
-        shaky solves come back for review automatically.
-      </div>
-
       {plan.suggestCore && (
         <div className="warn">
           {plan.perWeek}/wk is heavy. trim to the blind-75 core ({plan.remaining.length} left → {coreRemaining} left)?{' '}
@@ -125,19 +115,19 @@ export function PlanView({ plan, entries, profile, onProfile, onConfidence, onNo
         </div>
       )}
       {profile.coreOnly && (
-        <div className="subtext sectionnote">core-75 mode — pacing against the {CORE_TOTAL} essentials. the rest still count when solved.</div>
+        <div className="subtext sectionnote">core-75 mode: pacing against the {CORE_TOTAL} essentials. the rest still count when solved.</div>
       )}
 
       {plan.reviews.length > 0 && (
         <>
-          <div className="sectionhead">review due ({plan.reviews.length}) — re-solve, then re-rate</div>
+          <div className="sectionhead">review due ({plan.reviews.length})</div>
           {plan.reviews.map(p => (
             <ProblemRow key={p.id} problem={p} index={indexOf(p.id)} entry={entries[p.id]} {...rowProps} />
           ))}
         </>
       )}
 
-      {plan.status === 'done' && <div className="subtext sectionnote">nothing left. seriously.</div>}
+      {plan.status === 'done' && <div className="subtext sectionnote">nothing left.</div>}
       {plan.weeks.slice(0, shownWeeks).map((week, wi) => (
         <div key={week.label + wi}>
           <div className="sectionhead">
@@ -151,14 +141,14 @@ export function PlanView({ plan, entries, profile, onProfile, onConfidence, onNo
             <ProblemRow key={p.id} problem={p} index={indexOf(p.id)} entry={entries[p.id]} {...rowProps} />
           ))}
           {wi === 0 && week.label === 'this week' && plan.nextUp.length === 0 && plan.status !== 'done' && (
-            <div className="subtext sectionnote">week’s quota done — anything below is pulling ahead.</div>
+            <div className="subtext sectionnote">quota done. anything below is pulling ahead.</div>
           )}
         </div>
       ))}
 
       {hiddenWeeks.length > 0 && (
         <a className="morelink" onClick={() => setShownWeeks(n => n + 1)}>
-          more — {hiddenWeeks.length === 1 ? 'the last stretch' : `${hiddenWeeks.length} ${profile.targetDate ? 'weeks' : 'pages'}`} · {hiddenCount} problems
+          more ({hiddenCount} problems)
         </a>
       )}
     </div>

@@ -22,24 +22,24 @@ export function BoardView({ user, profile, onProfile, onSignIn }: Props) {
       .catch(e => { console.error('Leaderboard failed:', e); setError(true) })
   }, [])
 
-  if (!hasFirebase) return <div className="subtext sectionnote">running without a backend — no board in local mode.</div>
-  if (error) return <div className="subtext sectionnote">board unavailable — try a refresh.</div>
+  if (!hasFirebase) return <div className="subtext sectionnote">no board in local mode.</div>
+  if (error) return <div className="subtext sectionnote">board unavailable. try a refresh.</div>
   if (rows === null) return <div className="subtext sectionnote">loading…</div>
 
   return (
     <div>
       <div className="statusline">
-        <b>this week</b> · resets monday · every confidence level counts — honesty is free
+        <b>this week</b> · resets monday · all ratings count
       </div>
       {rows.length === 0 ? (
-        <div className="subtext sectionnote">nobody has solved anything this week. first blood is right there.</div>
+        <div className="subtext sectionnote">nobody has solved anything this week.</div>
       ) : (
         rows.map((r, i) => (
           <div className="row" key={r.displayName + i}>
             <div className="rowline">
               <span className="rank">{i + 1}.</span>
               <span className={i === 0 ? 'boardname boardtop' : 'boardname'}>{r.displayName}</span>
-              <span className="subtext"> — {r.solved} solved</span>
+              <span className="subtext"> · {r.solved} solved</span>
             </div>
           </div>
         ))

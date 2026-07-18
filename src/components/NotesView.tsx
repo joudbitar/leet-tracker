@@ -13,7 +13,7 @@ export function NotesView({ entries }: Props) {
   })
 
   if (withNotes.length === 0) {
-    return <div className="subtext sectionnote">no notes yet. write one when you solve — future-you at the whiteboard will thank you.</div>
+    return <div className="subtext sectionnote">no notes yet. write one when you solve.</div>
   }
 
   return (
