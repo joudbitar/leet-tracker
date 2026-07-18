@@ -29,14 +29,12 @@ cd leet-tracker
 npm install
 ```
 
-`.env.local`:
-```
-VITE_SUPABASE_URL=your-supabase-url
-VITE_SUPABASE_ANON_KEY=your-anon-key
-```
+Backend is Firebase (free Spark tier — auth + Firestore, never pauses):
 
-Run `supabase/schema.sql` in the Supabase SQL editor (upgrading from v1? use `supabase/migrations/002_v2.sql` instead — it migrates old data in place). Enable Google OAuth under Authentication → Providers. Then `npm run dev`.
+1. [Firebase console](https://console.firebase.google.com) → create a project → add a **web app**, copy its config into `.env.local` (see `.env.example`).
+2. **Authentication → Sign-in method** → enable Google. Add your domain under Authorized domains.
+3. **Firestore** → create a database, then paste `firebase/firestore.rules` in the Rules tab (or `firebase deploy --only firestore:rules`).
 
-Without `.env.local` the app still runs fully in local-only mode.
+Then `npm run dev`. Without `.env.local` the app still runs fully in local-only mode.
 
 PRs welcome.

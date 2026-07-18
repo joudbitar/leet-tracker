@@ -1,36 +1,24 @@
 import { useState, useEffect } from 'react'
-import type { Session, User } from '@supabase/supabase-js'
-import { supabase } from '../lib/supabase'
+import { onAuthStateChanged, signInWithPopup, signOut as fbSignOut, type User } from 'firebase/auth'
+import { auth, googleProvider } from '../lib/firebase'
 
 export function useAuth() {
-  const [session, setSession] = useState<Session | null>(null)
   const [user, setUser] = useState<User | null>(null)
-  const [initializing, setInitializing] = useState(!!supabase)
+  const [initializing, setInitializing] = useState(!!auth)
 
   useEffect(() => {
-    if (!supabase) return
-
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session)
-      setUser(session?.user ?? null)
+    if (!auth) return
+    return onAuthStateChanged(auth, u => {
+      setUser(u)
       setInitializing(false)
     })
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session)
-      setUser(session?.user ?? null)
-    })
-
-    return () => subscription.unsubscribe()
   }, [])
 
-  const signInWithGoogle = () =>
-    supabase?.auth.signInWithOAuth({
-      provider: 'google',
-      options: { redirectTo: window.location.origin },
-    })
+  const signInWithGoogle = () => {
+    if (auth) signInWithPopup(auth, googleProvider).catch(e => console.error('Sign-in failed:', e))
+  }
 
-  const signOut = () => supabase?.auth.signOut()
+  const signOut = () => { if (auth) fbSignOut(auth) }
 
-  return { session, user, initializing, signInWithGoogle, signOut }
+  return { user, initializing, signInWithGoogle, signOut }
 }
