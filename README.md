@@ -36,4 +36,6 @@ Backend is Firebase (free Spark tier, auth + Firestore):
 
 Then `npm run dev`. Without `.env.local` the app runs in local-only mode.
 
-PRs welcome.
+## contributing
+
+PRs welcome. See [CONTRIBUTING.md](CONTRIBUTING.md). MIT licensed.
