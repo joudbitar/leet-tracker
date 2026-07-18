@@ -12,7 +12,6 @@ interface Props {
   onConfidence: (id: string, c: Confidence | null, resetClock?: boolean) => void
   onNote: (id: string, note: string) => void
   onComplexity: (id: string, time: string | null, space: string | null) => void
-  onGuess: (id: string, pattern: string) => void
 }
 
 const STATUS_COPY: Record<Plan['status'], string> = {
@@ -24,13 +23,13 @@ const STATUS_COPY: Record<Plan['status'], string> = {
   'insane': 'godspeed',
 }
 
-export function PlanView({ plan, entries, profile, onProfile, onConfidence, onNote, onComplexity, onGuess }: Props) {
+export function PlanView({ plan, entries, profile, onProfile, onConfidence, onNote, onComplexity }: Props) {
   const [dateDraft, setDateDraft] = useState(profile.targetDate ?? '')
   const [editingDate, setEditingDate] = useState(false)
   const [shownWeeks, setShownWeeks] = useState(1)
   const [skipIntro, setSkipIntro] = useState(false)
 
-  const rowProps = { onConfidence, onNote, onComplexity, onGuess }
+  const rowProps = { onConfidence, onNote, onComplexity }
   const indexOf = (id: string) => PROBLEMS.findIndex(p => p.id === id) + 1
   const showDateForm = !profile.targetDate || editingDate
 

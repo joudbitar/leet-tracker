@@ -44,7 +44,7 @@ function saveLocal(entries: Entries) {
 }
 
 function isEmpty(e: Entry): boolean {
-  return e.confidence == null && !e.note && e.guessedPattern == null
+  return e.confidence == null && !e.note
 }
 
 // All of a user's progress lives in one doc: users/{uid} → { entries: { <problemId>: Entry } }.
@@ -144,13 +144,5 @@ export function useProgress(user: User | null) {
     patch(id, { timeComplexity: time, spaceComplexity: space })
   }, [patch])
 
-  const recordGuess = useCallback((id: string, pattern: string) => {
-    const actual = PROBLEM_BY_ID.get(id)?.pattern
-    patch(id, {
-      guessedPattern: pattern,
-      guessCorrect: pattern === 'skipped' ? null : pattern === actual,
-    })
-  }, [patch])
-
-  return { entries, loading, syncError, setConfidence, setNote, setComplexity, recordGuess }
+  return { entries, loading, syncError, setConfidence, setNote, setComplexity }
 }

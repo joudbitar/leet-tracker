@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { PATTERNS, type Confidence, type Problem } from '../data/problems'
+import { type Confidence, type Problem } from '../data/problems'
 import { daysAgo, isReviewDue, EMPTY_ENTRY, type Entry } from '../lib/plan'
 
 const COMPLEXITIES = ['O(1)', 'O(log n)', 'O(n)', 'O(n log n)', 'O(n²)', 'O(2ⁿ)', 'O(n!)']
@@ -17,31 +17,14 @@ interface Props {
   onConfidence: (id: string, c: Confidence | null, resetClock?: boolean) => void
   onNote: (id: string, note: string) => void
   onComplexity: (id: string, time: string | null, space: string | null) => void
-  onGuess: (id: string, pattern: string) => void
 }
 
-export function ProblemRow({ problem, index, entry = EMPTY_ENTRY, onConfidence, onNote, onComplexity, onGuess }: Props) {
-  const [guessOpen, setGuessOpen] = useState(false)
+export function ProblemRow({ problem, index, entry = EMPTY_ENTRY, onConfidence, onNote, onComplexity }: Props) {
   const [noteOpen, setNoteOpen] = useState(false)
   const [confirmUnsolve, setConfirmUnsolve] = useState(false)
 
   const solved = entry.confidence != null
   const due = isReviewDue(entry, new Date())
-  const needsGuess = !solved && entry.guessedPattern == null
-
-  function handleTitleClick(e: React.MouseEvent) {
-    if (needsGuess) {
-      e.preventDefault()
-      setGuessOpen(o => !o)
-    }
-    // solved or already-guessed: plain link behavior
-  }
-
-  function pickGuess(pattern: string) {
-    onGuess(problem.id, pattern)
-    setGuessOpen(false)
-    window.open(problem.url, '_blank', 'noopener')
-  }
 
   function toggleConfidence(c: Confidence) {
     if (entry.confidence === c && !due) {
@@ -67,7 +50,6 @@ export function ProblemRow({ problem, index, entry = EMPTY_ENTRY, onConfidence, 
           href={problem.url}
           target="_blank"
           rel="noopener noreferrer"
-          onClick={handleTitleClick}
         >
           {problem.name}
         </a>
@@ -76,29 +58,18 @@ export function ProblemRow({ problem, index, entry = EMPTY_ENTRY, onConfidence, 
       </div>
 
       <div className="subtext">
-        {solved ? (
+        {solved && (
           <>
             <span>{problem.pattern.toLowerCase()}</span>
-            {entry.guessedPattern && entry.guessedPattern !== 'skipped' && (
-              <span className={entry.guessCorrect ? 'guess-right' : 'guess-wrong'}>
-                {entry.guessCorrect ? ' ✓ guessed' : ` ✗ guessed ${entry.guessedPattern.toLowerCase()}`}
-              </span>
-            )}
             {(entry.timeComplexity || entry.spaceComplexity) && (
               <span> | {entry.timeComplexity ?? '?'} / {entry.spaceComplexity ?? '?'}</span>
             )}
             {entry.solvedAt && (
               <span> | {due ? `solved with ${entry.confidence} ` : ''}{daysAgo(entry.solvedAt)}</span>
             )}
+            {' | '}
           </>
-        ) : entry.guessedPattern && entry.guessedPattern !== 'skipped' ? (
-          <span>guessed: {entry.guessedPattern.toLowerCase()}</span>
-        ) : entry.guessedPattern === 'skipped' ? (
-          <span>pattern hidden till rated</span>
-        ) : (
-          <a className="act" onClick={() => setGuessOpen(o => !o)}>guess the pattern</a>
         )}
-        {' | '}
         {confirmUnsolve ? (
           <>
             <span className="confirm">unsolve? </span>
@@ -125,16 +96,6 @@ export function ProblemRow({ problem, index, entry = EMPTY_ENTRY, onConfidence, 
         </a>
       </div>
 
-      {guessOpen && (
-        <div className="guessbox">
-          <span className="guesslabel">pattern?</span>
-          {PATTERNS.map(p => (
-            <a key={p} className="chip" onClick={() => pickGuess(p)}>{p.toLowerCase()}</a>
-          ))}
-          <a className="chip chip-skip" onClick={() => pickGuess('skipped')}>skip →</a>
-        </div>
-      )}
-
       {noteOpen && (
         <div className="notebox">
           <textarea
@@ -145,7 +106,7 @@ export function ProblemRow({ problem, index, entry = EMPTY_ENTRY, onConfidence, 
             rows={2}
           />
           <div className="cxrow">
-            <span className="guesslabel">time</span>
+            <span className="cxlabel">time</span>
             {COMPLEXITIES.map(c => (
               <a
                 key={c}
@@ -157,7 +118,7 @@ export function ProblemRow({ problem, index, entry = EMPTY_ENTRY, onConfidence, 
             ))}
           </div>
           <div className="cxrow">
-            <span className="guesslabel">space</span>
+            <span className="cxlabel">space</span>
             {COMPLEXITIES.map(c => (
               <a
                 key={c}

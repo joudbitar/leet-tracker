@@ -28,7 +28,7 @@ function viewFromHash(): View {
 
 export default function App() {
   const { user, initializing, signInWithGoogle, signOut } = useAuth()
-  const { entries, loading, syncError, setConfidence, setNote, setComplexity, recordGuess } = useProgress(user)
+  const { entries, loading, syncError, setConfidence, setNote, setComplexity } = useProgress(user)
   const { profile, update } = useProfile(user)
   const [view, setView] = useState<View>(viewFromHash)
   const [authOpen, setAuthOpen] = useState(false)
@@ -51,7 +51,6 @@ export default function App() {
     onConfidence: setConfidence,
     onNote: setNote,
     onComplexity: setComplexity,
-    onGuess: recordGuess,
   }
 
   return (

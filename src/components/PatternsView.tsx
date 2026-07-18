@@ -27,21 +27,12 @@ export function PatternsView({ entries }: Props) {
 
   const total = PROBLEMS.length
   const overall = rows.reduce((s, r) => s + r.mastery * r.group.length, 0) / total
-  const guessed = PROBLEMS.filter(p => {
-    const g = entries[p.id]?.guessedPattern
-    return g && g !== 'skipped'
-  })
-  const guessedRight = guessed.filter(p => entries[p.id]?.guessCorrect).length
 
   return (
     <div>
       <div className="statusline">
         readiness <b>{Math.round(overall * 100)}%</b>
         <span className="subtext"> (clean = 100%, hints = 50%, solution = 25%)</span>
-        {guessed.length > 0 && (
-          <> · pattern recognition <b>{Math.round((guessedRight / guessed.length) * 100)}%</b>
-            <span className="subtext"> ({guessedRight}/{guessed.length} guessed right)</span></>
-        )}
       </div>
 
       <table className="grid">
