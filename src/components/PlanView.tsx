@@ -82,22 +82,14 @@ export function PlanView({ plan, entries, profile, onProfile, onConfidence, onNo
     <div>
       {dateBanner}
 
-      <div className="statusline">
-        {profile.targetDate && !editingDate && (
-          <>
-            <b>{profile.targetDate}</b> · {plan.daysLeft} days left ·{' '}
-          </>
-        )}
-        {plan.remaining.length} to go
-        {plan.perWeek != null && <> · pace {plan.perWeek}/wk{plan.perDay != null && plan.perDay > 3 ? ` (${plan.perDay}/day)` : ''}</>}
-        {STATUS_COPY[plan.status] && <> · <span className={`status status-${plan.status}`}>{STATUS_COPY[plan.status]}</span></>}
-        {profile.targetDate && !editingDate && (
-          <>{' '}· <a className="act" onClick={() => { setDateDraft(profile.targetDate!); setEditingDate(true) }}>edit date</a></>
-        )}
-        {' '}· <a className={`act ${profile.coreOnly ? 'act-on' : ''}`} onClick={() => onProfile({ coreOnly: !profile.coreOnly })}>
-          core-75: {profile.coreOnly ? 'on' : 'off'}
-        </a>
-      </div>
+      {profile.targetDate && !editingDate && (
+        <div className="statusline">
+          <b>{profile.targetDate}</b> · {plan.daysLeft} days left
+          {plan.perWeek != null && <> · pace {plan.perWeek}/wk{plan.perDay != null && plan.perDay > 3 ? ` (${plan.perDay}/day)` : ''}</>}
+          {STATUS_COPY[plan.status] && <> · <span className={`status status-${plan.status}`}>{STATUS_COPY[plan.status]}</span></>}
+          {' '}· <a className="act" onClick={() => { setDateDraft(profile.targetDate!); setEditingDate(true) }}>edit date</a>
+        </div>
+      )}
 
       {currentPattern && (
         <div className="subtext legend">
@@ -114,7 +106,7 @@ export function PlanView({ plan, entries, profile, onProfile, onConfidence, onNo
         </div>
       )}
       {profile.coreOnly && (
-        <div className="subtext sectionnote">core-75 mode: pacing against the {CORE_TOTAL} essentials. the rest still count when solved.</div>
+        <div className="subtext sectionnote">core-75 mode: pacing against the {CORE_TOTAL} essentials. the rest still count when solved. <a className="act" onClick={() => onProfile({ coreOnly: false })}>show all 150</a></div>
       )}
 
       {plan.reviews.length > 0 && (
