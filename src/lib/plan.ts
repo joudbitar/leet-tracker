@@ -64,6 +64,11 @@ export function isReviewDue(e: Entry | undefined, now: Date): boolean {
 
 export type PlanStatus = 'no-date' | 'done' | 'past-date' | 'on-track' | 'behind' | 'insane'
 
+export interface PlanWeek {
+  label: string
+  problems: Problem[]
+}
+
 export interface Plan {
   pool: Problem[]
   remaining: Problem[]
@@ -73,6 +78,8 @@ export interface Plan {
   solvedThisWeek: number
   thisWeekQuota: number
   nextUp: Problem[]
+  /** the whole remaining path, chunked by week (single chunk when no date) */
+  weeks: PlanWeek[]
   daysLeft: number | null
   perWeek: number | null
   perDay: number | null
@@ -139,9 +146,36 @@ export function buildPlan(entries: Entries, targetDate: string | null, coreOnly:
   const suggestCore =
     !coreOnly && perWeek != null && perWeek > HEAVY_PER_WEEK && coreRemaining < remaining.length
 
+  // Lay the whole remaining path out at once — chunked into stable week
+  // sections when there's a date, one flat list when there isn't. Chunks only
+  // shift on the Monday re-plan (or a date change), never mid-week on a solve.
+  const byIndex = (a: Problem, b: Problem) => PROBLEMS.indexOf(a) - PROBLEMS.indexOf(b)
+  const weeks: PlanWeek[] = []
+  if (!targetDate || remaining.length === 0) {
+    weeks.push({ label: 'next up', problems: [...doneThisWeek, ...remaining].sort(byIndex) })
+  } else {
+    weeks.push({ label: 'this week', problems: [...doneThisWeek, ...nextUp].sort(byIndex) })
+    const target = startOfDay(new Date(targetDate + 'T00:00:00')).getTime()
+    let rest = remaining.slice(nextUp.length)
+    let ws = weekStart + 7 * DAY
+    let i = 0
+    while (rest.length > 0) {
+      const weeksLeftHere = Math.max(1, Math.ceil((target - ws) / (7 * DAY)))
+      const n = Math.ceil(rest.length / weeksLeftHere)
+      const d = new Date(ws)
+      const label = i === 0
+        ? 'next week'
+        : `week of ${d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }).toLowerCase()}`
+      weeks.push({ label, problems: rest.slice(0, n) })
+      rest = rest.slice(n)
+      ws += 7 * DAY
+      i++
+    }
+  }
+
   return {
     pool, remaining, reviews, doneThisWeek, solvedInPool, solvedThisWeek,
-    thisWeekQuota, nextUp, daysLeft, perWeek, perDay, status, suggestCore,
+    thisWeekQuota, nextUp, weeks, daysLeft, perWeek, perDay, status, suggestCore,
   }
 }
 

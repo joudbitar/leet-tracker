@@ -93,28 +93,24 @@ export function PlanView({ plan, entries, profile, onProfile, onConfidence, onNo
         </>
       )}
 
-      <div className="sectionhead">
-        {profile.targetDate
-          ? `this week (${Math.min(plan.solvedThisWeek, plan.thisWeekQuota)} of ${plan.thisWeekQuota} done)`
-          : `next up · ${plan.solvedThisWeek} solved this week`}
-      </div>
-      {(() => {
-        // solved problems stay in the week view — shown upvoted, not vanished
-        const weekList = [...plan.doneThisWeek, ...plan.nextUp].sort((a, b) => indexOf(a.id) - indexOf(b.id))
-        if (weekList.length === 0) {
-          return <div className="subtext sectionnote">{plan.status === 'done' ? 'nothing left. seriously.' : 'nothing due. rest, or pull ahead from the problems tab.'}</div>
-        }
-        return (
-          <>
-            {weekList.map(p => (
-              <ProblemRow key={p.id} problem={p} index={indexOf(p.id)} entry={entries[p.id]} {...rowProps} />
-            ))}
-            {plan.nextUp.length === 0 && plan.status !== 'done' && (
-              <div className="subtext sectionnote">week’s quota done. rest, or pull ahead from the problems tab.</div>
-            )}
-          </>
-        )
-      })()}
+      {plan.status === 'done' && <div className="subtext sectionnote">nothing left. seriously.</div>}
+      {plan.weeks.map((week, wi) => (
+        <div key={week.label}>
+          <div className="sectionhead">
+            {week.label === 'this week'
+              ? `this week (${Math.min(plan.solvedThisWeek, plan.thisWeekQuota)} of ${plan.thisWeekQuota} done)`
+              : week.label === 'next up'
+                ? `next up · ${plan.solvedThisWeek} solved this week`
+                : `${week.label} (${week.problems.length})`}
+          </div>
+          {week.problems.map(p => (
+            <ProblemRow key={p.id} problem={p} index={indexOf(p.id)} entry={entries[p.id]} {...rowProps} />
+          ))}
+          {wi === 0 && week.label === 'this week' && plan.nextUp.length === 0 && plan.status !== 'done' && (
+            <div className="subtext sectionnote">week’s quota done — anything below is pulling ahead.</div>
+          )}
+        </div>
+      ))}
     </div>
   )
 }
