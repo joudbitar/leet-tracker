@@ -91,11 +91,6 @@ export default function App() {
         ) : (
           <>
             {syncError && <div className="warn">sync failing. progress is safe in this browser.</div>}
-            {!user && hasFirebase && view !== 'board' && (
-              <div className="subtext sectionnote">
-                progress saves to this browser. <a className="act" onClick={() => setAuthOpen(true)}>sign in</a> to sync + compete.
-              </div>
-            )}
             {view === 'plan' && (
               <PlanView plan={plan} entries={entries} profile={profile} onProfile={update} {...rowProps} />
             )}
