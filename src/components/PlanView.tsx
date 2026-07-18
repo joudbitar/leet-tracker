@@ -69,6 +69,11 @@ export function PlanView({ plan, entries, profile, onProfile, onConfidence, onNo
         </a>
       </div>
 
+      <div className="subtext legend">
+        rate each solve — <b>clean</b>: no help · <b>hints</b>: needed a nudge · <b>solution</b>: read the answer.
+        shaky solves come back for review automatically.
+      </div>
+
       {plan.suggestCore && (
         <div className="warn">
           {plan.perWeek}/wk is heavy. trim to the blind-75 core ({plan.remaining.length} left → {coreRemaining} left)?{' '}

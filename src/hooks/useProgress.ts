@@ -122,9 +122,18 @@ export function useProgress(user: User | null) {
     })
   }, [push])
 
-  /** Set (or re-set after a review re-solve) how a solve went. null = unsolve. */
-  const setConfidence = useCallback((id: string, confidence: Confidence | null) => {
-    patch(id, { confidence, solvedAt: confidence ? new Date().toISOString() : null })
+  /**
+   * Set how a solve went. null = unsolve. Correcting the rating on an
+   * already-solved problem keeps the original solve date (so it isn't
+   * re-counted this week); resetClock (review re-rates, fresh solves)
+   * stamps it now.
+   */
+  const setConfidence = useCallback((id: string, confidence: Confidence | null, resetClock = false) => {
+    const prev = entriesRef.current[id]
+    const solvedAt = confidence
+      ? (resetClock || !prev?.solvedAt ? new Date().toISOString() : prev.solvedAt)
+      : null
+    patch(id, { confidence, solvedAt })
   }, [patch])
 
   const setNote = useCallback((id: string, note: string) => {
