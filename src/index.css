@@ -133,17 +133,15 @@ a.confirm { font-weight: bold; }
 .morelink:hover { text-decoration: underline; }
 .legend b { color: #666; }
 .act + .act, .act + a, a + .act { margin-left: 6px; }
-.guess-right { color: var(--easy); }
-.guess-wrong { color: var(--hard); }
 
-/* ===== guess + note boxes ===== */
-.guessbox, .notebox {
+/* ===== note box ===== */
+.notebox {
   margin: 4px 0 4px 29px;
   padding: 6px;
   background: #efefe6;
   border: 1px solid #e0e0d6;
 }
-.guesslabel { font-size: 8pt; color: var(--gray); margin-right: 4px; }
+.cxlabel { font-size: 8pt; color: var(--gray); margin-right: 4px; }
 .chip {
   display: inline-block;
   font-size: 8pt;
@@ -155,7 +153,6 @@ a.confirm { font-weight: bold; }
 }
 .chip:hover { border-color: var(--orange); }
 .chip-on { background: var(--orange); color: #fff; border-color: var(--orange); }
-.chip-skip { color: var(--gray); border-style: dashed; }
 .notebox .noteinput {
   width: 100%;
   font-family: Verdana, Geneva, sans-serif;
@@ -242,5 +239,5 @@ a.confirm { font-weight: bold; }
 
 @media (max-width: 600px) {
   .rank { min-width: 18px; }
-  .row .subtext, .guessbox, .notebox, .notetext { padding-left: 0; margin-left: 0; }
+  .row .subtext, .notebox, .notetext { padding-left: 0; margin-left: 0; }
 }

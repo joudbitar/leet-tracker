@@ -4,8 +4,6 @@ export interface Entry {
   confidence: Confidence | null
   note: string
   solvedAt: string | null
-  guessedPattern: string | null // pattern name, or 'skipped'
-  guessCorrect: boolean | null
   timeComplexity: string | null
   spaceComplexity: string | null
 }
@@ -16,8 +14,6 @@ export const EMPTY_ENTRY: Entry = {
   confidence: null,
   note: '',
   solvedAt: null,
-  guessedPattern: null,
-  guessCorrect: null,
   timeComplexity: null,
   spaceComplexity: null,
 }

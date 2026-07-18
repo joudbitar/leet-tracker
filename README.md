@@ -13,7 +13,6 @@ A NeetCode-150 tracker. Pick a target date and the list becomes a weekly plan th
 - pick a date. pace = problems left ÷ time left, recomputed every visit. any date is legal.
 - rate each solve: clean, hints, or solution. one tap.
 - solution reads come back for review in about a week, hint solves in two.
-- guess the pattern before opening a problem. the patterns tab tracks your hit rate.
 - mastery grid: pattern × confidence at a glance.
 - notes and time/space complexity per problem, grouped into a per-pattern cheatsheet.
 - weekly leaderboard, resets monday. all ratings count the same.
