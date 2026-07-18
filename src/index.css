@@ -118,6 +118,13 @@ a.arrow:hover { color: var(--orange); }
 .confirm { color: var(--hard); font-size: 8pt; }
 a.confirm { font-weight: bold; }
 .legend { padding: 0 0 8px; }
+.morelink {
+  display: block;
+  padding: 8px 0 4px 29px;
+  color: var(--black);
+  font-size: 10pt;
+}
+.morelink:hover { text-decoration: underline; }
 .legend b { color: #666; }
 .act + .act, .act + a, a + .act { margin-left: 6px; }
 .guess-right { color: var(--easy); }

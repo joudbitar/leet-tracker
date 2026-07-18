@@ -152,7 +152,11 @@ export function buildPlan(entries: Entries, targetDate: string | null, coreOnly:
   const byIndex = (a: Problem, b: Problem) => PROBLEMS.indexOf(a) - PROBLEMS.indexOf(b)
   const weeks: PlanWeek[] = []
   if (!targetDate || remaining.length === 0) {
-    weeks.push({ label: 'next up', problems: [...doneThisWeek, ...remaining].sort(byIndex) })
+    // no date: flat path in HN-sized pages of 30
+    const all = [...doneThisWeek, ...remaining].sort(byIndex)
+    for (let i = 0; i < all.length; i += 30) {
+      weeks.push({ label: i === 0 ? 'next up' : 'later', problems: all.slice(i, i + 30) })
+    }
   } else {
     weeks.push({ label: 'this week', problems: [...doneThisWeek, ...nextUp].sort(byIndex) })
     const target = startOfDay(new Date(targetDate + 'T00:00:00')).getTime()
