@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { Fragment, useState } from 'react'
 import { PATTERNS, PROBLEMS, CORE_TOTAL, type Confidence } from '../data/problems'
 import { isSolved, type Entries, type Plan } from '../lib/plan'
 import type { Profile } from '../hooks/useProfile'
@@ -137,9 +137,20 @@ export function PlanView({ plan, entries, profile, onProfile, onConfidence, onNo
                 ? `next up · ${plan.solvedThisWeek} solved this week`
                 : `${week.label} (${week.problems.length})`}
           </div>
-          {week.problems.map(p => (
-            <ProblemRow key={p.id} problem={p} index={indexOf(p.id)} entry={entries[p.id]} {...rowProps} />
-          ))}
+          {week.problems.map((p, i) => {
+            const group = plan.pool.filter(g => g.pattern === p.pattern)
+            const done = group.filter(g => isSolved(entries[g.id])).length
+            return (
+              <Fragment key={p.id}>
+                {(i === 0 || week.problems[i - 1].pattern !== p.pattern) && (
+                  <div className="patternhead">
+                    {p.pattern.toLowerCase()} <span className="subtext">{done}/{group.length}</span>
+                  </div>
+                )}
+                <ProblemRow problem={p} index={indexOf(p.id)} entry={entries[p.id]} {...rowProps} />
+              </Fragment>
+            )
+          })}
           {wi === 0 && week.label === 'this week' && plan.nextUp.length === 0 && plan.status !== 'done' && (
             <div className="subtext sectionnote">quota done. anything below is pulling ahead.</div>
           )}

@@ -7,17 +7,15 @@ import { useProgress } from './hooks/useProgress'
 import { useProfile } from './hooks/useProfile'
 import { useBoardPush } from './hooks/useBoard'
 import { PlanView } from './components/PlanView'
-import { ProblemsView } from './components/ProblemsView'
 import { PatternsView } from './components/PatternsView'
 import { NotesView } from './components/NotesView'
 import { BoardView } from './components/BoardView'
 import { AuthModal } from './components/AuthModal'
 
-type View = 'plan' | 'problems' | 'patterns' | 'notes' | 'board'
+type View = 'plan' | 'patterns' | 'notes' | 'board'
 
 const VIEWS: { key: View; label: string }[] = [
   { key: 'plan', label: 'plan' },
-  { key: 'problems', label: 'problems' },
   { key: 'patterns', label: 'patterns' },
   { key: 'notes', label: 'notes' },
   { key: 'board', label: 'board' },
@@ -102,7 +100,6 @@ export default function App() {
             {view === 'plan' && (
               <PlanView plan={plan} entries={entries} profile={profile} onProfile={update} {...rowProps} />
             )}
-            {view === 'problems' && <ProblemsView entries={entries} {...rowProps} />}
             {view === 'patterns' && <PatternsView entries={entries} />}
             {view === 'notes' && <NotesView entries={entries} />}
             {view === 'board' && (
