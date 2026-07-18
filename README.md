@@ -4,7 +4,7 @@ Tell it when your interview is. It does the math.
 
 A NeetCode-150 tracker that turns your target date into a living plan — fall behind and this week's load grows, never a stale schedule. Rate every solve honestly (clean / hints / solution), and the shaky ones come back for review right when you'd forget them.
 
-**→ https://leet-tracker-pied.vercel.app**
+**→ https://leet150.vercel.app**
 
 ---
 
